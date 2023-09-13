@@ -1,10 +1,46 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import * as MediaLibrary from "expo-media-library";
 
 export default function App() {
+  const [status, requestPermission] = MediaLibrary.usePermissions();
+
+  const getMediaLibraryPermission = async () => {
+    console.log("Library Status", status);
+
+    // if (status.accessPrivileges === "none") {
+    const permission = await requestPermission();
+    if (!permission.canAskAgain) {
+      console.log("Trigger something to prompt a settings update");
+      Alert.alert(
+        "Needs Permissions",
+        "The app needs access to your atleast one photo in order to use this feature",
+        [{ text: "Go To Settings", onPress: () => Linking.openSettings() }]
+      );
+    }
+    // }
+  };
+
+  const handlePress = async () => {
+    await getMediaLibraryPermission();
+
+    try {
+      let allimages = await ImagePicker.launchImageLibraryAsync();
+      if (!allimages.canceled) {
+        console.log("Image result", allimages.assets[0].uri);
+      }
+    } catch (errors) {
+      console.error(errors);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
+      <TouchableOpacity onPress={handlePress}>
+        <Text>Pick Image</Text>
+      </TouchableOpacity>
       <StatusBar style="auto" />
     </View>
   );
@@ -13,8 +49,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
