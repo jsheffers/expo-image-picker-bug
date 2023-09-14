@@ -2,9 +2,11 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
+import { useState } from "react";
 
 export default function App() {
   const [status, requestPermission] = MediaLibrary.usePermissions();
+  const [image, setImage] = useState("");
 
   const getMediaLibraryPermission = async () => {
     console.log("Library Status", status);
@@ -29,8 +31,10 @@ export default function App() {
       let allimages = await ImagePicker.launchImageLibraryAsync();
       if (!allimages.canceled) {
         console.log("Image result", allimages.assets[0].uri);
+        setImage(allimages.assets[0].uri);
       }
     } catch (errors) {
+      setImage(errors.message);
       console.error(errors);
     }
   };
@@ -38,9 +42,10 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
-      <TouchableOpacity onPress={handlePress}>
+      <TouchableOpacity onPress={() => handlePress()}>
         <Text>Pick Image</Text>
       </TouchableOpacity>
+      <Text>{image}</Text>
       <StatusBar style="auto" />
     </View>
   );
